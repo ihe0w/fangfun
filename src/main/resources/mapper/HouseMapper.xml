@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.fangfun.dao.HouseDao">
+    <resultMap id="houseMap" type="com.example.fangfun.model.House" autoMapping="true">
+        <id property="houseId" jdbcType="INTEGER" column="house_id"/>
+        <result property="houseDesc" jdbcType="VARCHAR" column="house_desc"/>
+        <result property="rentType" jdbcType="TINYINT" column="rent_type"/>
+        <result property="landlordId" jdbcType="INTEGER" column="landlord_id"/>
+        <result property="locationId" jdbcType="VARCHAR" column="location_id"/>
+
+    </resultMap>
+    <!--todo I don;t know how to handle the relation between item and itemDetail?-->
+    <resultMap id="houseItemMap" type="com.example.fangfun.dto.HouseItemDTO" autoMapping="true">
+        <result property="houseId" jdbcType="INTEGER" column="house_id"/>
+        <result property="rentType" jdbcType="TINYINT" column="rent_type"/>
+        <result property="landlordId" jdbcType="INTEGER" column="user_id"/>
+        <result property="landlordName" jdbcType="VARCHAR" column="user_name"/>
+    </resultMap>
+    <resultMap id="houseItemDetailMap" type="com.example.fangfun.dto.HouseItemDetailDTO" autoMapping="true">
+        <result property="houseDesc" jdbcType="VARCHAR" column="house_desc"/>
+
+    </resultMap>
+
+    <!--UnsupportedOperationException when remove where , seems cause by list,yes for resultMap not list but type -->
+    <select id="selectHousesByConditions"  resultMap="houseItemMap">
+        SELECT * FROM house_item_detail
+        <where>
+            <if test="condition.minPrice!=null">
+                AND price &gt;= #{condition.minPrice}
+            </if>
+            <if test="condition.maxPrice!=null">
+                AND price &lt;= #{condition.maxPrice}
+            </if>
+            <if test="condition.rentType!=null">
+                AND rent_type=#{condition.rentType}
+            </if>
+            <choose>
+                <when test="condition.location.level==2">
+                    AND LEFT(location_id,9)=#{condition.location.locationId}
+                </when>
+                <when test="condition.location.level==3">
+                    AND location_id=#{condition.location.locationId}
+                </when>
+            </choose>
+        </where>
+
+    </select>
+
+
+</mapper>
